@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .login-container {
+            width: 100%;
+            max-width: 360px;
+            padding: 40px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin: 0 auto; /* Center horizontally */
+        }
+        .login-container h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .login-form input[type="text"],
+        .login-form input[type="password"] {
+            width: calc(100% - 24px);
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+        .login-form input[type="text"]:focus,
+        .login-form input[type="password"]:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        .login-form button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .login-form button:hover {
+            background-color: #0056b3;
+        }
+        .login-links {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        .login-links a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .login-links a:hover {
+            text-decoration: underline;
+        }
+        .success-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #007bff; /* Blue */
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>Login or Register</h1>
+        <form class="login-form" id="loginForm">
+            <input type="text" id="username" name="username" placeholder="Username" required><br><br>
+            <input type="password" id="password" name="password" placeholder="Password" required><br><br>
+            <button type="button" onclick="authenticate()">Login</button>
+            <button type="button" onclick="register()">Register</button>
+        </form>
+        <div class="login-links">
+            <p>New user? <a href="#">Create an account</a></p>
+        </div>
+    </div>
+
+    <div id="successPopup" class="success-popup">
+        <p>Login successful!</p>
+    </div>
+
+    <script>
+        // User database (mock data for demonstration)
+        var users = [
+            { username: "user", password: "password" }
+        ];
+
+        function authenticate() {
+            var username = document.getElementById('username').value.trim();
+            var password = document.getElementById('password').value.trim();
+
+            // Perform basic validation
+            if (!username || !password) {
+                alert("Please enter both username and password.");
+                return;
+            }
+
+            // Check if user exists in the database
+            var user = users.find(u => u.username === username && u.password === password);
+            if (user) {
+                // Show success popup
+                document.getElementById('successPopup').style.display = 'block';
+
+                // Redirect to the main application page (Amazon Reviews Sentiment Analyzer) after 2 seconds
+                setTimeout(function() {
+                    window.location.href = "amazon.html";
+                }, 2000);
+            } else {
+                alert("Invalid username or password.");
+            }
+        }
+
+        function register() {
+            var username = document.getElementById('username').value.trim();
+            var password = document.getElementById('password').value.trim();
+
+            // Perform basic validation
+            if (!username || !password) {
+                alert("Please enter both username and password.");
+                return;
+            }
+
+            // Check if username already exists
+            if (users.some(u => u.username === username)) {
+                alert("Username already exists. Please choose a different username.");
+                return;
+            }
+
+            // Add new user to the database (mock registration)
+            users.push({ username: username, password: password });
+
+            // Show success popup for registration
+            alert("Registration successful! You can now login with your new credentials.");
+        }
+    </script>
+</body>
+</html>

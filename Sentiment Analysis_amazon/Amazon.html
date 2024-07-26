@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Reviews Sentiment Analyzer</title>
+    <style>
+        /* Add your CSS styles here */
+        /* This is just a placeholder */
+    </style>
+</head>
+<body>
+    <!-- Your HTML content for the page -->
+    <h1>Product Reviews Sentiment Analyzer</h1>
+    <div>
+        <label for="userName">User Name:</label>
+        <input type="text" id="userName" name="userName" required>
+    </div>
+    <div>
+        <label for="productName">Product Name:</label>
+        <select id="productName" name="productName">
+            <option value="alexa">Alexa</option>
+            <option value="boatHeadphones">Boat Headphones</option>
+            <option value="nikeShoes">Nike Shoes</option>
+            <option value="rolexWatch">Rolex Watch</option>
+        </select>
+    </div>
+    <div>
+        <label for="reviewText">Review Text:</label><br>
+        <textarea id="reviewText" name="reviewText" rows="4" cols="50" required></textarea>
+    </div>
+    <button onclick="analyzeSentiment()">Analyze Sentiment</button>
+    <button onclick="clearText()">Clear</button>
+
+    <div id="sentimentResult"></div>
+    <div id="previousAnalyses"></div>
+    <div id="averageRating"></div>
+    <div id="recommendation"></div>
+
+    <!-- JavaScript code goes here -->
+    <script>
+        let productReviews = {
+            alexa: [],
+            boatHeadphones: [],
+            nikeShoes: [],
+            rolexWatch: []
+        };
+
+        function analyzeSentiment() {
+            var userName = document.getElementById('userName').value.trim();
+            var productName = document.getElementById('productName').value;
+            var text = document.getElementById('reviewText').value.trim();
+            var result = "";
+            var stars = "";
+
+            // Validate input
+            if (!userName || !text) {
+                alert("Please enter both username and review text.");
+                return;
+            }
+
+            // Define sentiment keywords
+            var positiveKeywords = ['good', 'excellent', 'great', 'wonderful', 'superb', 'awesome', 'outstanding'];
+            var negativeKeywords = ['bad', 'poor', 'terrible', 'awful', 'horrible'];
+            var neutralKeywords = ['okay', 'fine', 'average'];
+
+            // Default to neutral sentiment
+            var sentiment = "Neutral";
+            var sentimentClass = "neutral";
+            var starRating = 3;
+
+            // Check for positive sentiment keywords
+            if (containsAny(text.toLowerCase(), positiveKeywords)) {
+                sentiment = "Positive";
+                sentimentClass = "positive";
+                starRating = 5;
+            }
+            // Check for negative sentiment keywords
+            else if (containsAny(text.toLowerCase(), negativeKeywords)) {
+                sentiment = "Negative";
+                sentimentClass = "negative";
+                starRating = 1;
+            }
+            // Check for neutral sentiment keywords
+            else if (containsAny(text.toLowerCase(), neutralKeywords)) {
+                sentiment = "Neutral";
+                sentimentClass = "neutral";
+                starRating = 3;
+            }
+
+            result = "<span class='" + sentimentClass + "'>Sentiment: " + sentiment + "</span>";
+            stars = generateStars(starRating);
+
+            document.getElementById('sentimentResult').innerHTML = "<h2>Analysis Result:</h2><p>" + result + "</p>" + stars;
+            savePreviousAnalysis(userName, productName, text, sentiment, starRating);
+            updateAverageRating(productName);
+            updateRecommendation(productName);
+        }
+
+        // Helper function to check if text contains any of the keywords
+        function containsAny(text, keywords) {
+            return keywords.some(keyword => text.includes(keyword));
+        }
+
+        // Helper function to generate star rating
+        function generateStars(rating) {
+            var starsHtml = "<div class='stars'>";
+            for (var i = 0; i < rating; i++) {
+                starsHtml += "<span class='star'>&#9733;</span>";
+            }
+            for (var i = rating; i < 5; i++) {
+                starsHtml += "<span class='star' style='color: #ccc;'>&#9733;</span>";
+            }
+            starsHtml += "</div>";
+            return starsHtml;
+        }
+
+        // Function to save previous analysis
+        function savePreviousAnalysis(userName, productName, text, sentiment, starRating) {
+            productReviews[productName].push({ userName, text, sentiment, starRating });
+            updatePreviousAnalyses(productName);
+        }
+
+        // Function to update the previous analyses section
+        function updatePreviousAnalyses(productName) {
+            var analysesContainer = document.getElementById('previousAnalyses');
+            analysesContainer.innerHTML = '<h2>Previous Analyses</h2>';
+            productReviews[productName].forEach(analysis => {
+                analysesContainer.innerHTML += `
+                    <div class="analysis-item">
+                        <p><strong>User:</strong> ${analysis.userName}</p>
+                        <p><strong>Review:</strong> ${analysis.text}</p>
+                        <p><strong>Sentiment:</strong> ${analysis.sentiment}</p>
+                        <p><strong>Rating:</strong> ${generateStars(analysis.starRating)}</p>
+                    </div>
+                `;
+            });
+        }
+
+        // Function to update the average rating
+        function updateAverageRating(productName) {
+            var totalRating = 0;
+            var numberOfReviews = productReviews[productName].length;
+
+            productReviews[productName].forEach(analysis => {
+                totalRating += analysis.starRating;
+            });
+
+            var averageRating = (totalRating / numberOfReviews).toFixed(1);
+            document.getElementById('averageRating').innerHTML = "<h2>Average Rating of " + productName + ":</h2>" +
+                generateStars(Math.round(averageRating)) + " (" + averageRating + ") based on " + numberOfReviews + " reviews";
+        }
+
+        // Function to update the recommendation based on average rating
+        function updateRecommendation(productName) {
+            var totalRating = 0;
+            var numberOfReviews = productReviews[productName].length;
+
+            productReviews[productName].forEach(analysis => {
+                totalRating += analysis.starRating;
+            });
+
+            var averageRating = totalRating / numberOfReviews;
+
+            var recommendationDiv = document.getElementById('recommendation');
+            if (averageRating >= 4.0) {
+                recommendationDiv.innerHTML = "<h2>Recommendation for " + productName + ":</h2><p>We recommend this product based on the average rating of " + averageRating.toFixed(1) + "</p>";
+            } else {
+                recommendationDiv.innerHTML = "<h2>Recommendation for " + productName + ":</h2><p>We do not recommend this product based on the average rating of " + averageRating.toFixed(1) + "</p>";
+            }
+        }
+
+        // Function to clear the text area and result
+        function clearText() {
+            document.getElementById('userName').value = "";
+            document.getElementById('reviewText').value = "";
+            document.getElementById('sentimentResult').innerHTML = "";
+        }
+    </script>
+</body>
+</html>
